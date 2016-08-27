@@ -45,6 +45,9 @@ require_once CLEA_ADD_BUTTON_DIR_PATH . 'includes/clea-add-button-enqueues.php';
 // internationalisation de l'extension
 require_once CLEA_ADD_BUTTON_DIR_PATH . 'includes/clea-add-button-i18n.php'; 
 
+// Settings page for the admin
+require_once CLEA_ADD_BUTTON_DIR_PATH . 'admin/clea-add-button-settings-page.php'; 
+
 
 /******************************************************************************
 * Actions à réaliser à l'initialisation et l'activation du plugin
