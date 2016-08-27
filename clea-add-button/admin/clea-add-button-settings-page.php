@@ -2,59 +2,91 @@
 /**
  *
  * Créer une page de settings pour l'extension
- * Based on Anna's gist https://gist.github.com/annalinneajohansson/5290405
+
  *
- * @link       	https://gist.github.com/annalinneajohansson/5290405
- * @since      	0.1.0
+ * @link       	
+ * @since      	0.2.0
  *
  * @package    clea-add-button
- * @subpackage clea-presentation/includes
+ * @subpackage clea-add-button/includes
  * Text Domain: clea-add-button
  */
 
-# http://kovshenin.com/2012/the-wordpress-settings-api/
-# http://codex.wordpress.org/Settings_API
-add_action( 'admin_menu', 'my_admin_menu' );
-function my_admin_menu() {
-    add_options_page( __('My Plugin Options', 'textdomain' ), __('My Plugin Options', 'textdomain' ), 'manage_options', 'my-plugin', 'my_options_page' );
+//  Based on Anna's gist https://gist.github.com/annalinneajohansson/5290405
+// http://codex.wordpress.org/Settings_API
+
+/**********************************************************************
+
+* to set the title of the setting page see -- clea_add_button_options_page()
+* to set the sections see -- clea_add_button_settings_sections_val()
+* to set the fields see -- clea_add_button_settings_fields_val()
+
+**********************************************************************/
+
+// create the settings page and it's menu
+add_action( 'admin_menu', 'clea_add_button_admin_menu' );
+
+// set the content of the admin page
+add_action( 'admin_init', 'clea_add_button_admin_init' );
+
+
+function clea_add_button_admin_menu() {
+	
+    add_options_page( 
+		__('Options de Clea Add Button', 'clea-add-button' ),	// page title (H1)	
+		__('Options', 'clea-add-button' ),						// menu title
+		'manage_options', 										// required capability
+		'my-plugin', 											// menu slug (unique ID)
+		'clea_add_button_options_page' );						// callback function
 }
-add_action( 'admin_init', 'my_admin_init' );
-function my_admin_init() {
+
+function clea_add_button_admin_init() {
   
-  /* 
-	 * http://codex.wordpress.org/Function_Reference/register_setting
-	 * register_setting( $option_group, $option_name, $sanitize_callback );
-	 * The second argument ($option_name) is the option name. It’s the one we use with functions like get_option() and update_option()
-	 * */
-  	# With input validation:
-  	# register_setting( 'my-settings-group', 'my-plugin-settings', 'my_settings_validate_and_sanitize' );    
   	register_setting( 'my-settings-group', 'my-plugin-settings' );
 	
-  	/* 
-	 * http://codex.wordpress.org/Function_Reference/add_settings_section
-	 * add_settings_section( $id, $title, $callback, $page ); 
-	 * */	 
-  	add_settings_section( 'section-1', __( 'Section One', 'textdomain' ), 'section_1_callback', 'my-plugin' );
-	add_settings_section( 'section-2', __( 'Section Two', 'textdomain' ), 'section_2_callback', 'my-plugin' );
+	$set_sections = clea_add_button_settings_sections_val() ;
+ 
+	// add_settings_section
+	foreach( $set_sections as $section ) {
+		
+		add_settings_section( 
+			$section[ 'section_name' ], 
+			$section[ 'section_title' ] ,
+			$section[ 'section_callbk' ], 
+			$section[ 'menu_slug' ]
+		);
+		
+	}	
+
+	$set_fields = clea_add_button_settings_fields_val() ;
 	
-	/* 
-	 * http://codex.wordpress.org/Function_Reference/add_settings_field
-	 * add_settings_field( $id, $title, $callback, $page, $section, $args );
-	 * */
-  	add_settings_field( 'field-1-1', __( 'Field One', 'textdomain' ), 'field_1_1_callback', 'my-plugin', 'section-1' );
-	add_settings_field( 'field-1-2', __( 'Field Two', 'textdomain' ), 'field_1_2_callback', 'my-plugin', 'section-1' );
-	
-	add_settings_field( 'field-2-1', __( 'Field One', 'textdomain' ), 'field_2_1_callback', 'my-plugin', 'section-2' );
-	add_settings_field( 'field-2-2', __( 'Field Two', 'textdomain' ), 'field_2_2_callback', 'my-plugin', 'section-2' );
-	
+	// add the fields
+	foreach ( $set_fields as $section_field ) {
+
+		foreach( $section_field as $field ){
+
+			add_settings_field( 
+				$field['field_id'], 
+				$field['label'], 
+				$field['field_callbk'],  
+				$field['menu_slug'], 
+				$field['section_name'] 
+			);
+		}
+
+	}	
 }
-/* 
- * THE ACTUAL PAGE 
- * */
-function my_options_page() {
+
+
+/**********************************************************************
+
+* The actual page
+
+**********************************************************************/
+function clea_add_button_options_page() {
 ?>
   <div class="wrap">
-      <h2><?php _e('My Plugin Options', 'textdomain'); ?></h2>
+      <h2><?php _e('My Plugin Options', 'clea-add-button'); ?></h2>
       <form action="options.php" method="POST">
         <?php settings_fields('my-settings-group'); ?>
         <?php do_settings_sections('my-plugin'); ?>
@@ -62,20 +94,16 @@ function my_options_page() {
       </form>
   </div>
 <?php }
-/*
-* THE SECTIONS
-* Hint: You can omit using add_settings_field() and instead
-* directly put the input fields into the sections.
-* */
+
+
 function section_1_callback() {
-	_e( 'Some help text regarding Section One goes here.', 'textdomain' );
+	_e( 'Some help text regarding Section One goes here.', 'clea-add-button' );
 }
 function section_2_callback() {
-	_e( 'Some help text regarding Section Two goes here.', 'textdomain' );
+	_e( 'Some help text regarding Section Two goes here.', 'clea-add-button' );
 }
-/*
-* THE FIELDS
-* */
+
+
 function field_1_1_callback() {
 	
 	$settings = (array) get_option( 'my-plugin-settings' );
@@ -111,7 +139,7 @@ function field_2_2_callback() {
 /*
 * INPUT VALIDATION:
 * */
-function my_settings_validate_and_sanitize( $input ) {
+function clea_add_button_settings_validate_and_sanitize( $input ) {
 	$settings = (array) get_option( 'my-plugin-settings' );
 	
 	if ( $some_condition == $input['field_1_1'] ) {
@@ -129,4 +157,85 @@ function my_settings_validate_and_sanitize( $input ) {
 	// and so on for each field
 	
 	return $output;
+}
+
+/**********************************************************************
+
+* THE SECTIONS
+
+**********************************************************************/
+
+function clea_add_button_settings_sections_val() {
+
+	$sections = array(
+		array(
+			'section_name' 	=> 'section-1', 
+			'section_title'	=>  __( 'Section One', 'clea-add-button' ), 
+			'section_callbk'=> 'section_1_callback', 
+			'menu_slug'		=> 'my-plugin' ,								
+		),
+		array(
+			'section_name' 	=> 'section-2',
+			'section_title'	=>  __( 'Section Two', 'clea-add-button' ),
+			'section_callbk'=> 'section_2_callback' ,
+			'menu_slug'		=> 'my-plugin'
+			),
+	);	
+	
+	return $sections ;
+	
+}
+
+/**********************************************************************
+
+* THE FIELDS
+
+**********************************************************************/
+function clea_add_button_settings_fields_val() {
+
+
+
+	$section_1_fields = array (
+		array(
+			'field_id' 		=> 'field-1-1', 							
+			'label'			=> __( 'Field One', 'clea-add-button' ), 	
+			'field_callbk'	=> 'field_1_1_callback', 					
+			'menu_slug'		=> 'my-plugin', 							
+			'section_name'	=> 'section-1', 							
+		),	
+		array(
+			'field_id' 		=> 'field-1-2',
+			'label'			=> __( 'Field Two', 'clea-add-button' ),
+			'field_callbk'	=> 'field_1_2_callback', 
+			'menu_slug'		=> 'my-plugin', 
+			'section_name'	=> 'section-1'
+		),
+	);
+	
+	$section_2_fields = array (
+		array(
+			'field_id' 		=> 'field-2-1', 
+			'label'			=> __( 'Field One', 'clea-add-button' ), 
+			'field_callbk'	=> 'field_2_1_callback', 
+			'menu_slug'		=> 'my-plugin', 
+			'section_name'	=> 'section-2'			
+		),
+		array(
+			'field_id' 		=> 'field-2-2', 
+			'label'			=> __( 'Field Two', 'clea-add-button' ), 
+			'field_callbk'	=> 'field_2_2_callback', 
+			'menu_slug'		=> 'my-plugin', 
+			'section_name'	=> 'section-2'
+		),
+	);
+	
+
+	$section_fields = array(
+		'section-1'	=> $section_1_fields,
+		'section-2' => $section_2_fields
+	) ;	
+
+	
+	
+	return $section_fields ;
 }
