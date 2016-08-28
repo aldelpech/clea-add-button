@@ -15,6 +15,13 @@
 //  Based on Anna's gist https://gist.github.com/annalinneajohansson/5290405
 // http://codex.wordpress.org/Settings_API
 
+
+/**********************************************************************
+* DEBUG ?
+***********************************************************************/
+
+define('ENABLE_DEBUG', false);	// if true, the script will echo debug data
+
 /**********************************************************************
 
 * to set the title of the setting page see -- clea_add_button_options_page()
@@ -42,7 +49,7 @@ function clea_add_button_admin_menu() {
 
 function clea_add_button_admin_init() {
   
-  	register_setting( 'my-settings-group', 'my-plugin-settings' );
+  	register_setting( 'my-settings-group', 'my-plugin-settings' ) ;
 	
 	$set_sections = clea_add_button_settings_sections_val() ;
  
@@ -112,7 +119,16 @@ function clea_add_button_settings_section_callback( $args  ) {
 
 	$description = $sect_descr[ $args['id'] ] ;
 	printf( '<span class="section-description">%s<span>', $description );
-	
+
+	if ( ENABLE_DEBUG ) {
+		
+		if ( is_plugin_active( CLEA_ADD_BUTTON_DIR_PATH . 'query-monitor-extension-checking-variables/query-monitor-check-var.php' ) ) {
+		  	
+			console( $args );	
+			
+		} 
+
+	}
 }
 
 /**********************************************************************
@@ -126,11 +142,16 @@ function clea_add_button_settings_field_callback( $arguments  ) {
 	$settings = (array) get_option( 'my-plugin-settings' );
 	$field = $arguments['field_id'] ;
 	$value = esc_attr( $settings[$field] );
-	echo "<hr /><pre>";
-	print_r( $arguments ) ;
-	echo "</pre>Val field1-1 : $val <hr />";	
+
+	// for development only
+	if ( ENABLE_DEBUG ) {
+		
+		echo "<hr /><pre>";
+		print_r( $arguments ) ;	
+		echo "</pre><hr />";
+	}
+
 	echo "<input type='text' name='my-plugin-settings[$field]' value='$value' />";	
-	
 }
 
 /*
