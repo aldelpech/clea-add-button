@@ -186,9 +186,31 @@ function clea_add_button_settings_field_callback( $arguments  ) {
 		case 'textarea' : 
 			printf( '<textarea name="%2$s" id="%3$s" rows="4" cols="80" value="%1$s">%1$s</textarea>', esc_textarea( $value ), $name, $field );
 			break ;
-		
+		case 'select': // If it is a select dropdown
+
+		if( ! empty ( $arguments['options'] ) && is_array( $arguments['options'] ) ){
+			
+			printf( '<select id="%2$s" name="%1$s">', $name, $field );
+			foreach( $arguments['options'] as $item ) {
+				$selected = ( $value	 == $item ) ? 'selected="selected"' : '';
+				echo "<option value='$item' $selected>$item</option>";
+			}
+			echo "</select>";	
+			
+			} else {
+				echo __( 'Indiquer les options dans la définition du champs', 'clea-add-button' ) ;
+			}
+			break;
+		case 'checkbox' : 
+			printf( '<input type="hidden" name="%1$s" id="%2$s" value="0" />', $name, $field ) 	;
+			
+			if( $value ) { $checked = ' checked="checked" '; }
+			printf( ' <input %3$s id="%2$s" name="%1$s" type="checkbox" />', $name, $field, $checked ) ;
+			break ;
+			
 		default : 
 			printf( esc_html__( 'This field is type <em>%s</em> and could not be rendered.', 'clea-add-button' ), $arguments['type']  );
+			
 	}
 }
 
@@ -271,6 +293,31 @@ function clea_add_button_settings_fields_val() {
 			'type'			=> 'textarea',
 			'helper'		=> __( 'help 1-2', 'clea-presentation' ),
 			'default'		=> ''			
+		),
+		array(
+			'field_id' 		=> 'field-1-3', 
+			'label'			=> __( 'Field three : select', 'clea-add-button' ), 
+			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
+			'menu_slug'		=> 'my-plugin', 
+			'section_name'	=> 'section-1',
+			'type'			=> 'select',
+			'helper'		=> __( 'help 1-3', 'clea-presentation' ),
+			'default'		=> '',
+			'options'		=> array(
+								__( 'Choix 1', 'clea-add-button' ) ,
+								__( 'Choix 2', 'clea-add-button' )	,
+								__( 'Choix 3', 'clea-add-button' )
+							),				
+		),
+		array(
+			'field_id' 		=> 'field-1-4', 
+			'label'			=> __( 'Field four : checkbox', 'clea-add-button' ), 
+			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
+			'menu_slug'		=> 'my-plugin', 
+			'section_name'	=> 'section-1',
+			'type'			=> 'checkbox',
+			'helper'		=> __( 'help 1-4', 'clea-presentation' ),
+			'default'		=> '',
 		),
 	);
 	
