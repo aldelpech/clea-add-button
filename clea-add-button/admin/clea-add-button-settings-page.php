@@ -34,7 +34,7 @@ function clea_add_button_admin_menu() {
 	
     add_options_page( 
 		__('Options de Clea Add Button', 'clea-add-button' ),	// page title (H1)	
-		__('Options', 'clea-add-button' ),						// menu title
+		__('Add Button', 'clea-add-button' ),						// menu title
 		'manage_options', 										// required capability
 		'my-plugin', 											// menu slug (unique ID)
 		'clea_add_button_options_page' );						// callback function
@@ -70,7 +70,8 @@ function clea_add_button_admin_init() {
 				$field['label'], 
 				$field['field_callbk'],  
 				$field['menu_slug'], 
-				$field['section_name'] 
+				$field['section_name'],
+				$field
 			);
 		}
 
@@ -104,14 +105,18 @@ function section_2_callback() {
 }
 
 
-function field_1_1_callback() {
+function field_1_1_callback( $arguments ) {
 	
 	$settings = (array) get_option( 'my-plugin-settings' );
 	$field = "field_1_1";
 	$value = esc_attr( $settings[$field] );
 	
 	echo "<input type='text' name='my-plugin-settings[$field]' value='$value' />";
+	echo "<hr /><pre>";
+	print_r( $arguments ) ;
+	echo "</pre><hr />";	
 }
+
 function field_1_2_callback() {
 	
 	$settings = (array) get_option( 'my-plugin-settings' );
@@ -201,7 +206,10 @@ function clea_add_button_settings_fields_val() {
 			'label'			=> __( 'Field One', 'clea-add-button' ), 	
 			'field_callbk'	=> 'field_1_1_callback', 					
 			'menu_slug'		=> 'my-plugin', 							
-			'section_name'	=> 'section-1', 							
+			'section_name'	=> 'section-1',
+			'type'			=> 'text',
+			'helper'		=> __( 'help 1', 'clea-presentation' ),
+			'default'		=> ''			
 		),	
 		array(
 			'field_id' 		=> 'field-1-2',
