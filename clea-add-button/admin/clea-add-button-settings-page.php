@@ -203,10 +203,37 @@ function clea_add_button_settings_field_callback( $arguments  ) {
 			break;
 		case 'checkbox' : 
 			printf( '<input type="hidden" name="%1$s" id="%2$s" value="0" />', $name, $field ) 	;
-			
-			if( $value ) { $checked = ' checked="checked" '; }
+			$checked = '' ;
+			if( $value ) { $checked = ' checked="checked" ' ; }
 			printf( ' <input %3$s id="%2$s" name="%1$s" type="checkbox" />', $name, $field, $checked ) ;
 			break ;
+		case 'radio' : // radio buttons
+			if( ! empty ( $arguments['options'] ) && is_array( $arguments['options'] ) ){
+				
+				echo "<span class='radio'>" ;
+				foreach( $arguments['options'] as $key => $label ){
+					
+					$items[] = $label ;
+				}
+
+				foreach( $arguments['options'] as $item) {
+					$checked = ( $value == $item ) ? 'checked' : '';
+					printf( '<label><input type="radio" value="%2$s" name="%1$s" %3$s> %2$s</label><br />', $name, $item, $checked );
+				}
+				echo "</span>" ;
+			}
+			break ;
+		case 'wysiwig' :
+		
+			// sanitize data for the wp_editor
+			$content = wp_kses_post( $value ) ;
+			
+			$args = array(
+				'textarea_name' => $name
+			) ;
+			
+			wp_editor( $content, $field, $args );		
+			break ;	
 			
 		default : 
 			printf( esc_html__( 'This field is type <em>%s</em> and could not be rendered.', 'clea-add-button' ), $arguments['type']  );
@@ -330,10 +357,15 @@ function clea_add_button_settings_fields_val() {
 			'section_name'	=> 'section-2',
 			'type'			=> 'radio',
 			'helper'		=> __( 'help 2-1', 'clea-presentation' ),
-			'default'		=> ''						
+			'default'		=> '',
+			'options'		=> array(
+								__( 'Choix 1', 'clea-add-button' ) ,
+								__( 'Choix 2', 'clea-add-button' )	,
+								__( 'Choix 3', 'clea-add-button' )
+							),			
 		),
 		array(
-			'field_id' 		=> 'field-2-2', 
+			'field_id' 		=> 'field_2_2', 	// The field id may not use 
 			'label'			=> __( 'Field Two : wysiwig', 'clea-add-button' ), 
 			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
 			'menu_slug'		=> 'my-plugin', 
