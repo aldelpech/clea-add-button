@@ -96,51 +96,43 @@ function clea_add_button_options_page() {
   </div>
 <?php }
 
+/**********************************************************************
 
-function section_1_callback() {
-	_e( 'Some help text regarding Section One goes here.', 'clea-add-button' );
-}
-function section_2_callback() {
-	_e( 'Some help text regarding Section Two goes here.', 'clea-add-button' );
-}
+* Section callback
 
+**********************************************************************/
 
-function field_1_1_callback( $arguments ) {
+function clea_add_button_settings_section_callback( $args  ) {
 	
+	$sect_descr = array(
+
+		'section-1' 	=> __( 'Text regarding Section One goes here.', 'clea-presentation' ),
+		'section-2' 	=> __( 'Text regarding Section Two goes here.', 'clea-presentation' )
+	);		
+
+	$description = $sect_descr[ $args['id'] ] ;
+	printf( '<span class="section-description">%s<span>', $description );
+	
+}
+
+/**********************************************************************
+
+* Field callback
+
+**********************************************************************/
+
+function clea_add_button_settings_field_callback( $arguments  ) {
+
 	$settings = (array) get_option( 'my-plugin-settings' );
-	$field = "field_1_1";
+	$field = $arguments['field_id'] ;
 	$value = esc_attr( $settings[$field] );
-	
-	echo "<input type='text' name='my-plugin-settings[$field]' value='$value' />";
 	echo "<hr /><pre>";
 	print_r( $arguments ) ;
-	echo "</pre><hr />";	
+	echo "</pre>Val field1-1 : $val <hr />";	
+	echo "<input type='text' name='my-plugin-settings[$field]' value='$value' />";	
+	
 }
 
-function field_1_2_callback() {
-	
-	$settings = (array) get_option( 'my-plugin-settings' );
-	$field = "field_1_2";
-	$value = esc_attr( $settings[$field] );
-	
-	echo "<input type='text' name='my-plugin-settings[$field]' value='$value' />";
-}
-function field_2_1_callback() {
-	
-	$settings = (array) get_option( 'my-plugin-settings' );
-	$field = "field_2_1";
-	$value = esc_attr( $settings[$field] );
-	
-	echo "<input type='text' name='my-plugin-settings[$field]' value='$value' />";
-}
-function field_2_2_callback() {
-	
-	$settings = (array) get_option( 'my-plugin-settings' );
-	$field = "field_2_2";
-	$value = esc_attr( $settings[$field] );
-	
-	echo "<input type='text' name='my-plugin-settings[$field]' value='$value' />";
-}
 /*
 * INPUT VALIDATION:
 * */
@@ -176,13 +168,13 @@ function clea_add_button_settings_sections_val() {
 		array(
 			'section_name' 	=> 'section-1', 
 			'section_title'	=>  __( 'Section One', 'clea-add-button' ), 
-			'section_callbk'=> 'section_1_callback', 
+			'section_callbk'=> 'clea_add_button_settings_section_callback', 
 			'menu_slug'		=> 'my-plugin' ,								
 		),
 		array(
 			'section_name' 	=> 'section-2',
 			'section_title'	=>  __( 'Section Two', 'clea-add-button' ),
-			'section_callbk'=> 'section_2_callback' ,
+			'section_callbk'=> 'clea_add_button_settings_section_callback' ,
 			'menu_slug'		=> 'my-plugin'
 			),
 	);	
@@ -204,7 +196,7 @@ function clea_add_button_settings_fields_val() {
 		array(
 			'field_id' 		=> 'field-1-1', 							
 			'label'			=> __( 'Field One', 'clea-add-button' ), 	
-			'field_callbk'	=> 'field_1_1_callback', 					
+			'field_callbk'	=> 'clea_add_button_settings_field_callback', 					
 			'menu_slug'		=> 'my-plugin', 							
 			'section_name'	=> 'section-1',
 			'type'			=> 'text',
@@ -214,7 +206,7 @@ function clea_add_button_settings_fields_val() {
 		array(
 			'field_id' 		=> 'field-1-2',
 			'label'			=> __( 'Field Two', 'clea-add-button' ),
-			'field_callbk'	=> 'field_1_2_callback', 
+			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
 			'menu_slug'		=> 'my-plugin', 
 			'section_name'	=> 'section-1'
 		),
@@ -224,14 +216,14 @@ function clea_add_button_settings_fields_val() {
 		array(
 			'field_id' 		=> 'field-2-1', 
 			'label'			=> __( 'Field One', 'clea-add-button' ), 
-			'field_callbk'	=> 'field_2_1_callback', 
+			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
 			'menu_slug'		=> 'my-plugin', 
 			'section_name'	=> 'section-2'			
 		),
 		array(
 			'field_id' 		=> 'field-2-2', 
 			'label'			=> __( 'Field Two', 'clea-add-button' ), 
-			'field_callbk'	=> 'field_2_2_callback', 
+			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
 			'menu_slug'		=> 'my-plugin', 
 			'section_name'	=> 'section-2'
 		),
