@@ -25,8 +25,10 @@ define('ENABLE_DEBUG', false);	// if true, the script will echo debug data
 /**********************************************************************
 
 * to set the title of the setting page see -- clea_add_button_options_page()
-* to set the sections see -- clea_add_button_settings_sections_val()
-* to set the fields see -- clea_add_button_settings_fields_val()
+* to set the section rendering see -- clea_add_button_settings_section_callback( $args  )
+* to set the array of sections see -- clea_add_button_settings_sections_val()
+* to set the fields rendering see -- clea_add_button_settings_field_callback( $arguments  )
+* to set the array of fields see -- clea_add_button_settings_fields_val()
 
 **********************************************************************/
 
@@ -49,7 +51,11 @@ function clea_add_button_admin_menu() {
 
 function clea_add_button_admin_init() {
   
-  	register_setting( 'my-settings-group', 'my-plugin-settings' ) ;
+	if( false == get_option( 'my-plugin-settings' ) ) {  
+		add_option( 'my-plugin-settings' );
+	}
+	
+	register_setting( 'my-settings-group', 'my-plugin-settings' ) ;
 	
 	$set_sections = clea_add_button_settings_sections_val() ;
  
@@ -139,19 +145,51 @@ function clea_add_button_settings_section_callback( $args  ) {
 
 function clea_add_button_settings_field_callback( $arguments  ) {
 
-	$settings = (array) get_option( 'my-plugin-settings' );
-	$field = $arguments['field_id'] ;
-	$value = esc_attr( $settings[$field] );
 
+	$settings = (array) get_option( "my-plugin-settings" );
+	$field = $arguments[ 'field_id' ] ;
+	
 	// for development only
 	if ( ENABLE_DEBUG ) {
 		
-		echo "<hr /><pre>";
+		echo "<hr /><p>Arguments</p><pre>";
 		print_r( $arguments ) ;	
 		echo "</pre><hr />";
+		echo "<hr /><p>Options</p><pre>";
+		print_r( $settings ) ;	
+		echo "</pre><hr />";
 	}
+		
+	// set a $options array with the field id as it's key
+	if ( !empty( $settings ) ) {
+		foreach ( $settings as $key => $option ) {
+			$options[$key] = $option;
+		}
+	}	
+	
+	// now check if $options[ $field ] is set
+	if( isset( $options[ "$field" ] ) ) {
+			$value = $settings[ $field ] ;
+	} else {
+			// set the value to the default value
+			$value = $arguments[ 'default' ] ;
+	}	
 
-	echo "<input type='text' name='my-plugin-settings[$field]' value='$value' />";	
+	
+	$name = 'my-plugin-settings['. $field . ']' ;
+
+	switch( $arguments['type'] ){
+		
+		case 'text' : 
+			printf( '<input type="text" id="%3$s" name="%2$s" value="%1$s" />', esc_attr( $value ), $name, $field );
+			break ;
+		case 'textarea' : 
+			printf( '<textarea name="%2$s" id="%3$s" rows="4" cols="80" value="%1$s">%1$s</textarea>', esc_textarea( $value ), $name, $field );
+			break ;
+		
+		default : 
+			printf( esc_html__( 'This field is type <em>%s</em> and could not be rendered.', 'clea-add-button' ), $arguments['type']  );
+	}
 }
 
 /*
@@ -221,32 +259,51 @@ function clea_add_button_settings_fields_val() {
 			'menu_slug'		=> 'my-plugin', 							
 			'section_name'	=> 'section-1',
 			'type'			=> 'text',
-			'helper'		=> __( 'help 1', 'clea-presentation' ),
+			'helper'		=> __( 'help 1-1', 'clea-presentation' ),
 			'default'		=> ''			
 		),	
 		array(
 			'field_id' 		=> 'field-1-2',
-			'label'			=> __( 'Field Two', 'clea-add-button' ),
+			'label'			=> __( 'Field Two : textarea', 'clea-add-button' ),
 			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
 			'menu_slug'		=> 'my-plugin', 
-			'section_name'	=> 'section-1'
+			'section_name'	=> 'section-1',
+			'type'			=> 'textarea',
+			'helper'		=> __( 'help 1-2', 'clea-presentation' ),
+			'default'		=> ''			
 		),
 	);
 	
 	$section_2_fields = array (
 		array(
 			'field_id' 		=> 'field-2-1', 
-			'label'			=> __( 'Field One', 'clea-add-button' ), 
+			'label'			=> __( 'Field One : radio', 'clea-add-button' ), 
 			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
 			'menu_slug'		=> 'my-plugin', 
-			'section_name'	=> 'section-2'			
+			'section_name'	=> 'section-2',
+			'type'			=> 'radio',
+			'helper'		=> __( 'help 2-1', 'clea-presentation' ),
+			'default'		=> ''						
 		),
 		array(
 			'field_id' 		=> 'field-2-2', 
-			'label'			=> __( 'Field Two', 'clea-add-button' ), 
+			'label'			=> __( 'Field Two : wysiwig', 'clea-add-button' ), 
 			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
 			'menu_slug'		=> 'my-plugin', 
-			'section_name'	=> 'section-2'
+			'section_name'	=> 'section-2',
+			'type'			=> 'wysiwig',
+			'helper'		=> __( 'help 2-2', 'clea-presentation' ),
+			'default'		=> ''			
+		),
+				array(
+			'field_id' 		=> 'field-2-3', 
+			'label'			=> __( 'Field three : color', 'clea-add-button' ), 
+			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
+			'menu_slug'		=> 'my-plugin', 
+			'section_name'	=> 'section-2',
+			'type'			=> 'color',
+			'helper'		=> __( 'help 2-3', 'clea-presentation' ),
+			'default'		=> ''			
 		),
 	);
 	
