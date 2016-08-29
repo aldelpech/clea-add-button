@@ -45,8 +45,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 == Changelog ==
 
 = 0.2 =
-* A change since the previous version.
-* Another change.
+* Added a settings page able to display all types of field
 
 = 0.1 =
 * Setup the base plugin

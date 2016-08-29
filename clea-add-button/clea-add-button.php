@@ -10,7 +10,7 @@
 * Text Domain: clea-add-button
 * 
 * @package		clea-presentation
-* @version		0.1.0
+* @version		0.2.0
 * @author 		Anne-Laure Delpech
 * @copyright 	Copyright (c) 2016 Anne-Laure Delpech
 * @link			https://github.com/aldelpech/CLEA-presentation
