@@ -8,7 +8,7 @@
  * @since      	0.2.0
  *
  * @package    clea-add-button
- * @subpackage clea-add-button/includes
+ * @subpackage clea-add-button/admin
  * Text Domain: clea-add-button
  */
 
@@ -99,14 +99,33 @@ function clea_add_button_admin_init() {
 **********************************************************************/
 function clea_add_button_options_page() {
 ?>
-  <div class="wrap">
-      <h2><?php _e('My Plugin Options', 'clea-add-button'); ?></h2>
-      <form action="options.php" method="POST">
-        <?php settings_fields('my-settings-group'); ?>
-        <?php do_settings_sections('my-plugin'); ?>
-        <?php submit_button(); ?>
-      </form>
-  </div>
+	<div class="wrap">
+		<h2><?php _e('My Plugin Options', 'clea-add-button'); ?></h2>
+		<form action="options.php" method="POST">
+			<?php settings_fields('my-settings-group'); ?>
+			<?php do_settings_sections('my-plugin'); ?>
+			<?php submit_button(); ?>
+		</form>
+
+	<?php
+	// for development only
+	if ( ENABLE_DEBUG ) {
+
+		$colors = clea_add_button_get_current_colors() ;
+		echo "<hr /><p>Arguments</p><pre>";
+		print_r( $colors ) ;	
+		echo "</pre><hr />";
+	
+		echo "<hr /><p>Arguments</p><pre>";
+		print_r( $arguments ) ;	
+		echo "</pre><hr />";
+		echo "<hr /><p>Options</p><pre>";
+		print_r( $settings ) ;	
+		echo "</pre><hr />";
+	}  
+	?>
+
+	</div>
 <?php }
 
 /**********************************************************************
@@ -234,7 +253,26 @@ function clea_add_button_settings_field_callback( $arguments  ) {
 			
 			wp_editor( $content, $field, $args );		
 			break ;	
+		case 'color' :
+	
+			// get the colors used by the theme
+			$current_colors = clea_presentation_get_current_colors() ;
+			$data_palette = "";
 			
+			// the color palette must be a string with colors and | separator
+			// "#222|#444|#00CC22|rgba(72,168,42,0.4)" would be ok
+			foreach ( $current_colors as $color ) {
+				
+				$data_palette .= $color . '|' ;
+				
+			}
+			
+			$data_palette = rtrim( $data_palette, '|' ) ;
+			
+			
+			// uses https://github.com/BraadMartin/components/tree/master/alpha-color-picker
+			printf( '<input type="text" class="alpha-color-picker" name="%2$s" value="%1$s" data-palette="%5$s" data-default-color="%4$s" data-show-opacity="true" />', sanitize_text_field( $value ), $name, $field, $arguments['default'], $data_palette  ) ;
+			break ;				
 		default : 
 			printf( esc_html__( 'This field is type <em>%s</em> and could not be rendered.', 'clea-add-button' ), $arguments['type']  );
 			
@@ -262,6 +300,43 @@ function clea_add_button_settings_validate_and_sanitize( $input ) {
 	// and so on for each field
 	
 	return $output;
+}
+
+/**********************************************************************
+
+* find the colors used in the website's theme
+
+**********************************************************************/
+function clea_add_button_get_current_colors() {
+
+	// to get all the current theme data in an array
+	$mods = get_theme_mods();
+
+	$color = array() ;
+	
+	foreach ( $mods as $key => $values ) {
+		
+		if ( !is_array( $values ) ) {
+			
+			if ( is_string( $values ) && trim( $values ) != '' ) {
+				
+				$hex = sanitize_hex_color_no_hash( $values ) ;
+				
+				if ( trim( $hex ) != '' ) {
+					
+					$color[ $key ] = $hex ;
+
+				}
+
+			}
+		} 
+	}
+
+	// remove duplicate colors
+	$colors = array_unique( $color ) ;
+	
+	return $colors ;
+	
 }
 
 /**********************************************************************
@@ -382,7 +457,7 @@ function clea_add_button_settings_fields_val() {
 			'section_name'	=> 'section-2',
 			'type'			=> 'color',
 			'helper'		=> __( 'help 2-3', 'clea-presentation' ),
-			'default'		=> ''			
+			'default'		=> 'rgba(0,0,0,0.85)'			
 		),
 	);
 	
