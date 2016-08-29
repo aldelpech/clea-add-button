@@ -20,7 +20,7 @@
 * DEBUG ?
 ***********************************************************************/
 
-define('ENABLE_DEBUG', false);	// if true, the script will echo debug data
+define('ENABLE_DEBUG', false );	// if true, the script will echo debug data
 
 /**********************************************************************
 
@@ -194,7 +194,21 @@ function clea_add_button_settings_field_callback( $arguments  ) {
 			$value = $arguments[ 'default' ] ;
 	}	
 
+	// If there is a help text and / or description
+	printf( '<span class="field_desc">' ) ;
 	
+    if( isset( $arguments['helper'] ) && $helper = $arguments['helper'] ){
+
+		printf( '<span class="helper" data-descr="%2$s"><img src="%1$s/images/question-mark.png" class="alignleft" id="helper" alt="help" data-pin-nopin="true"></span>',CLEA_ADD_BUTTON_DIR_URL, $helper ) ;
+    }
+	
+	// If there is a description
+    if( isset( $arguments['label'] ) && $description = $arguments['label'] ){
+        printf( ' %s', $description ); // Show it
+    }
+
+	printf( '</span>' ) ;
+
 	$name = 'my-plugin-settings['. $field . ']' ;
 
 	switch( $arguments['type'] ){
@@ -449,7 +463,7 @@ function clea_add_button_settings_fields_val() {
 			'helper'		=> __( 'help 2-2', 'clea-presentation' ),
 			'default'		=> ''			
 		),
-				array(
+		array(
 			'field_id' 		=> 'field-2-3', 
 			'label'			=> __( 'Field three : color', 'clea-add-button' ), 
 			'field_callbk'	=> 'clea_add_button_settings_field_callback', 

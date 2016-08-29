@@ -1,0 +1,34 @@
+/**
+ * Settings page (admin)
+ */
+ 
+span.field_desc {
+	display: block;
+	font-style: italic;
+	margin-bottom: 5px;
+}
+
+img#helper {
+	margin-right: 5px;
+}
+
+/**
+ * source https://developer.mozilla.org/fr/docs/Web/CSS/::after
+ */
+.helper[data-descr]:hover::after {
+	content: attr(data-descr);
+	position: relative;
+	left: 0;
+	top: -24px;
+	min-width: 200px;
+	border: 1px #aaaaaa solid;
+	border-radius: 10px;
+	background-color: #ffffcc;
+	padding: 12px;
+	color: #000000;
+	font-size: 14px;
+	z-index: 1;
+}
+
+
+

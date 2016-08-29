@@ -29,9 +29,11 @@ function clea_add_button_admin_enqueue_scripts( $hook ) {
 		
     }
 
+	// for the alpha color picker
+	// source : https://github.com/BraadMartin/components/tree/master/alpha-color-picker
     wp_enqueue_style(
         'alpha-color-picker',
-        CLEA_ADD_BUTTON_DIR_URL . '/admin/css/alpha-color-picker.css', // Update to where you put the file.
+        CLEA_ADD_BUTTON_DIR_URL . '/admin/css/alpha-color-picker.css', 
         array( 'wp-color-picker' ) // You must include these here.
     );
 
@@ -52,5 +54,15 @@ function clea_add_button_admin_enqueue_scripts( $hook ) {
         null,
         true
     );
+
+	// options page style
+    wp_enqueue_style(
+        'clea-add-button-admin-style',
+        CLEA_ADD_BUTTON_DIR_URL . '/admin/css/clea-add-button-admin.css'
+    );
+
 	
 } 
+
+
+
