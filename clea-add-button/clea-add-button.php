@@ -51,6 +51,9 @@ require_once CLEA_ADD_BUTTON_DIR_PATH . 'admin/clea-add-button-settings-page.php
 // load styles and scripts for the admin
 require_once CLEA_ADD_BUTTON_DIR_PATH . 'admin/clea-add-button-admin-enqueue.php'; 
 
+// the sections and fields data for the settings page. 
+require_once CLEA_ADD_BUTTON_DIR_PATH . 'admin/clea-add-button-admin-settings.php'; 
+
 /******************************************************************************
 * Actions à réaliser à l'initialisation et l'activation du plugin
 * @since 0.1 

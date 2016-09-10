@@ -55,7 +55,7 @@ function clea_add_button_admin_init() {
 		add_option( 'my-plugin-settings' );
 	}
 	
-	register_setting( 'my-settings-group', 'my-plugin-settings' ) ;
+	register_setting( 'my-settings-group', 'my-plugin-settings', 'clea_add_button_settings_validate_and_sanitize' ) ;
 	
 	$set_sections = clea_add_button_settings_sections_val() ;
  
@@ -91,7 +91,6 @@ function clea_add_button_admin_init() {
 	}	
 }
 
-
 /**********************************************************************
 
 * The actual page
@@ -106,25 +105,7 @@ function clea_add_button_options_page() {
 			<?php do_settings_sections('my-plugin'); ?>
 			<?php submit_button(); ?>
 		</form>
-
-	<?php
-	// for development only
-	if ( ENABLE_DEBUG ) {
-
-		$colors = clea_add_button_get_current_colors() ;
-		echo "<hr /><p>Arguments</p><pre>";
-		print_r( $colors ) ;	
-		echo "</pre><hr />";
 	
-		echo "<hr /><p>Arguments</p><pre>";
-		print_r( $arguments ) ;	
-		echo "</pre><hr />";
-		echo "<hr /><p>Options</p><pre>";
-		print_r( $settings ) ;	
-		echo "</pre><hr />";
-	}  
-	?>
-
 	</div>
 <?php }
 
@@ -147,11 +128,13 @@ function clea_add_button_settings_section_callback( $args  ) {
 
 	if ( ENABLE_DEBUG ) {
 		
-		if ( is_plugin_active( CLEA_ADD_BUTTON_DIR_PATH . 'query-monitor-extension-checking-variables/query-monitor-check-var.php' ) ) {
+		if ( is_plugin_active( 'query-monitor-extension-checking-variables/query-monitor-check-var.php' ) ) {
 		  	
 			console( $args );	
 			
-		} 
+		} else {
+			echo " ---- NOT WORKING ---------------------------------" ;
+		}
 
 	}
 }
@@ -234,13 +217,15 @@ function clea_add_button_settings_field_callback( $arguments  ) {
 				echo __( 'Indiquer les options dans la définition du champs', 'clea-add-button' ) ;
 			}
 			break;
-		case 'checkbox' : 
+
+			case 'checkbox' : 
 			printf( '<input type="hidden" name="%1$s" id="%2$s" value="0" />', $name, $field ) 	;
 			$checked = '' ;
 			if( $value ) { $checked = ' checked="checked" ' ; }
 			printf( ' <input %3$s id="%2$s" name="%1$s" type="checkbox" />', $name, $field, $checked ) ;
 			break ;
-		case 'radio' : // radio buttons
+
+			case 'radio' : // radio buttons
 			if( ! empty ( $arguments['options'] ) && is_array( $arguments['options'] ) ){
 				
 				echo "<span class='radio'>" ;
@@ -256,7 +241,8 @@ function clea_add_button_settings_field_callback( $arguments  ) {
 				echo "</span>" ;
 			}
 			break ;
-		case 'wysiwig' :
+
+			case 'wysiwig' :
 		
 			// sanitize data for the wp_editor
 			$content = wp_kses_post( $value ) ;
@@ -267,7 +253,8 @@ function clea_add_button_settings_field_callback( $arguments  ) {
 			
 			wp_editor( $content, $field, $args );		
 			break ;	
-		case 'color' :
+
+			case 'color' :
 	
 			// get the colors used by the theme
 			$current_colors = clea_presentation_get_current_colors() ;
@@ -287,32 +274,49 @@ function clea_add_button_settings_field_callback( $arguments  ) {
 			// uses https://github.com/BraadMartin/components/tree/master/alpha-color-picker
 			printf( '<input type="text" class="alpha-color-picker" name="%2$s" value="%1$s" data-palette="%5$s" data-default-color="%4$s" data-show-opacity="true" />', sanitize_text_field( $value ), $name, $field, $arguments['default'], $data_palette  ) ;
 			break ;				
+
+		case 'date-picker' : 
+			printf( '<input type="date" id="%3$s" name="%2$s" value="%1$s" class="datepicker" />', sanitize_text_field( $value ), $name, $field, $arguments['default'] ) ;
+			break ;
+			
+		case 'email' :
+			
+			printf( '<input type="text" id="%3$s" name="%2$s" value="%1$s" />', sanitize_email( $value ), $name, $field );
+			break ;
+		
+		case 'url' :
+			$content = sanitize_text_field( $value ) ;
+			printf( '<input type="text" id="%3$s" name="%2$s" value="%1$s" />', esc_url( $content ), $name, $field );			
+			break ;
+			
 		default : 
 			printf( esc_html__( 'This field is type <em>%s</em> and could not be rendered.', 'clea-add-button' ), $arguments['type']  );
 			
 	}
 }
 
-/*
-* INPUT VALIDATION:
-* */
+/**********************************************************************
+
+* Sanitize and validate
+
+**********************************************************************/
+
 function clea_add_button_settings_validate_and_sanitize( $input ) {
-	$settings = (array) get_option( 'my-plugin-settings' );
+
+	$output = (array) get_option( 'my-plugin-settings' );
 	
-	if ( $some_condition == $input['field_1_1'] ) {
-		$output['field_1_1'] = $input['field_1_1'];
+	// test the email in  'field-1-6'
+	if ( is_email( $input['field-1-6'] ) ) {
+		
+		$output['field-1-6'] = $input['field-1-6'];
+
 	} else {
-		add_settings_error( 'my-plugin-settings', 'invalid-field_1_1', 'You have entered an invalid value into Field One.' );
+		
+		add_settings_error( 'my-plugin-settings', 'invalid-email', 'You have entered an invalid e-mail address.' );
 	}
-	
-	if ( $some_condition == $input['field_1_2'] ) {
-		$output['field_1_2'] = $input['field_1_2'];
-	} else {
-		add_settings_error( 'my-plugin-settings', 'invalid-field_1_2', 'You have entered an invalid value into Field One.' );
-	}
-	
-	// and so on for each field
-	
+
+	// if ( $some_condition == $input['field_1_1'] )
+		
 	return $output;
 }
 
@@ -353,135 +357,3 @@ function clea_add_button_get_current_colors() {
 	
 }
 
-/**********************************************************************
-
-* THE SECTIONS
-
-**********************************************************************/
-
-function clea_add_button_settings_sections_val() {
-
-	$sections = array(
-		array(
-			'section_name' 	=> 'section-1', 
-			'section_title'	=>  __( 'Section One', 'clea-add-button' ), 
-			'section_callbk'=> 'clea_add_button_settings_section_callback', 
-			'menu_slug'		=> 'my-plugin' ,								
-		),
-		array(
-			'section_name' 	=> 'section-2',
-			'section_title'	=>  __( 'Section Two', 'clea-add-button' ),
-			'section_callbk'=> 'clea_add_button_settings_section_callback' ,
-			'menu_slug'		=> 'my-plugin'
-			),
-	);	
-	
-	return $sections ;
-	
-}
-
-/**********************************************************************
-
-* THE FIELDS
-
-**********************************************************************/
-function clea_add_button_settings_fields_val() {
-
-
-
-	$section_1_fields = array (
-		array(
-			'field_id' 		=> 'field-1-1', 							
-			'label'			=> __( 'Field One', 'clea-add-button' ), 	
-			'field_callbk'	=> 'clea_add_button_settings_field_callback', 					
-			'menu_slug'		=> 'my-plugin', 							
-			'section_name'	=> 'section-1',
-			'type'			=> 'text',
-			'helper'		=> __( 'help 1-1', 'clea-presentation' ),
-			'default'		=> ''			
-		),	
-		array(
-			'field_id' 		=> 'field-1-2',
-			'label'			=> __( 'Field Two : textarea', 'clea-add-button' ),
-			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
-			'menu_slug'		=> 'my-plugin', 
-			'section_name'	=> 'section-1',
-			'type'			=> 'textarea',
-			'helper'		=> __( 'help 1-2', 'clea-presentation' ),
-			'default'		=> ''			
-		),
-		array(
-			'field_id' 		=> 'field-1-3', 
-			'label'			=> __( 'Field three : select', 'clea-add-button' ), 
-			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
-			'menu_slug'		=> 'my-plugin', 
-			'section_name'	=> 'section-1',
-			'type'			=> 'select',
-			'helper'		=> __( 'help 1-3', 'clea-presentation' ),
-			'default'		=> '',
-			'options'		=> array(
-								__( 'Choix 1', 'clea-add-button' ) ,
-								__( 'Choix 2', 'clea-add-button' )	,
-								__( 'Choix 3', 'clea-add-button' )
-							),				
-		),
-		array(
-			'field_id' 		=> 'field-1-4', 
-			'label'			=> __( 'Field four : checkbox', 'clea-add-button' ), 
-			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
-			'menu_slug'		=> 'my-plugin', 
-			'section_name'	=> 'section-1',
-			'type'			=> 'checkbox',
-			'helper'		=> __( 'help 1-4', 'clea-presentation' ),
-			'default'		=> '',
-		),
-	);
-	
-	$section_2_fields = array (
-		array(
-			'field_id' 		=> 'field-2-1', 
-			'label'			=> __( 'Field One : radio', 'clea-add-button' ), 
-			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
-			'menu_slug'		=> 'my-plugin', 
-			'section_name'	=> 'section-2',
-			'type'			=> 'radio',
-			'helper'		=> __( 'help 2-1', 'clea-presentation' ),
-			'default'		=> '',
-			'options'		=> array(
-								__( 'Choix 1', 'clea-add-button' ) ,
-								__( 'Choix 2', 'clea-add-button' )	,
-								__( 'Choix 3', 'clea-add-button' )
-							),			
-		),
-		array(
-			'field_id' 		=> 'field_2_2', 	// The field id may not use 
-			'label'			=> __( 'Field Two : wysiwig', 'clea-add-button' ), 
-			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
-			'menu_slug'		=> 'my-plugin', 
-			'section_name'	=> 'section-2',
-			'type'			=> 'wysiwig',
-			'helper'		=> __( 'help 2-2', 'clea-presentation' ),
-			'default'		=> ''			
-		),
-		array(
-			'field_id' 		=> 'field-2-3', 
-			'label'			=> __( 'Field three : color', 'clea-add-button' ), 
-			'field_callbk'	=> 'clea_add_button_settings_field_callback', 
-			'menu_slug'		=> 'my-plugin', 
-			'section_name'	=> 'section-2',
-			'type'			=> 'color',
-			'helper'		=> __( 'help 2-3', 'clea-presentation' ),
-			'default'		=> 'rgba(0,0,0,0.85)'			
-		),
-	);
-	
-
-	$section_fields = array(
-		'section-1'	=> $section_1_fields,
-		'section-2' => $section_2_fields
-	) ;	
-
-	
-	
-	return $section_fields ;
-}
