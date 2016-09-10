@@ -304,18 +304,48 @@ function clea_add_button_settings_field_callback( $arguments  ) {
 function clea_add_button_settings_validate_and_sanitize( $input ) {
 
 	$output = (array) get_option( 'my-plugin-settings' );
-	
-	// test the email in  'field-1-6'
-	if ( is_email( $input['field-1-6'] ) ) {
-		
-		$output['field-1-6'] = $input['field-1-6'];
 
-	} else {
+	$set_fields = clea_add_button_settings_fields_val() ;
+	$types = array() ;
+	// create an array with field names and field types
+	foreach ( $set_fields as $fields ) {
+
+		foreach( $fields as $field ){
+
+			$types[ $field['field_id'] ] = $field['type'] ;
+
+		}
+
+	}	
+
+	// now validate and sanitize each field
+	foreach ( $types as $key => $type ) {
 		
-		add_settings_error( 'my-plugin-settings', 'invalid-email', 'You have entered an invalid e-mail address.' );
+
+		switch( $type ){
+			
+			case 'wysiwig' :
+				$output[ $key ] = wp_kses_post( $input[ $key ] ) ;
+				break ;	
+			case 'email' :
+				if ( is_email( $input[ $key ] ) ) {
+					
+					$output[ $key ] = $input[ $key ];
+
+				} else {
+					
+					$message = __( 'You have entered an invalid e-mail address in : ', 'clea-add-button' ) ;
+					$message .= $key ;
+					add_settings_error( 'my-plugin-settings', 'invalid-email', $message  );
+				}
+				break ;
+			default : 
+				$output[ $key ] = sanitize_text_field( $input[ $key ] ) ;
+				
+		}
+
+		
 	}
-
-	// if ( $some_condition == $input['field_1_1'] )
 		
 	return $output;
 }

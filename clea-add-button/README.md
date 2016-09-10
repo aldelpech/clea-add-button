@@ -44,6 +44,11 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 == Changelog ==
 
+= 0.3 =
+* the definition of sections and fields to display on the settings page is now in /admin/clea-add-button-admin-settings.php
+* 3 new types of fields may be processed : date-picker, email and url
+* validation and sanitation of user inputs is done and the user gets a notice in case of a bad email
+
 = 0.2 =
 * Added a settings page able to display all types of field
 
